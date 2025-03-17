@@ -1,0 +1,157 @@
+{
+  "blips": {
+    "windmill_manager": "Windmill Manager",
+    "owned_windmill": "Owned Windmill #"
+  },
+  "target": {
+    "buy_windmill": "Buy Windmill",
+    "manage_windmill": "Manage Windmill"
+  },
+  "error": {
+    "went_wrong": "Something went wrong, come back later!",
+    "not_owned": "You do not own this Windmill!",
+    "already_owned": "You already own a Windmill!",
+    "buyer_already_own_turbine": "%s already owns a Windmill!",
+    "missing_money": "You dont have enough money!"
+  },
+  "progresscircle": {
+    "manage_menu": "Checking Panel",
+    "buying_windmill": "Buying Windmill",
+    "peter_menu": "Talking to Peter...",
+    "selling_batteries": "Selling Batteries..."
+  },
+  "ui": {
+    "not_owning_windmill": "You dont own a Windmill, come back after buying one!",
+
+    "buy_turbine": "This Windmill Cost $%s. Are u sure u want to buy it?",
+
+    "windmill": "Windmill #",
+    "energy_stored": "Current Energy Stored: %s MWh",
+    "energy_stored_max": "Current Energy Stored: %s MWh \n(MAX STORAGE REACHED)",
+    "max_storage_description": "This Storage can be full, make sure to either Upgrade or empty it from time to time!",
+    "storage_metadata": "Maximum Storage: %s MWh",
+
+    "empty_storage_title": "Start Emptying the Storage",
+    "empty_storage_description": "This will give u the max Batterys u can hold.",
+    "empty_storage_content": "Do you want to take Batterys out of your Storage?",
+    "empty_storage_metadata": "Batterys: %s",
+    "empty_notify_description": "You took %s Batterys out of your Storage.",
+    "empty_notify_description_no_space": "Empty your Inventory first.",
+
+    "windmill_manager": "Windmill Manager",
+
+    "capacity_title": "Battery Capacity:",
+    "capacity_description": "The Battery Capacity will let u store more Energy.",
+    "capacity_description2": "You cant upgrade Battery Capacity because its already on max Level!",
+    "capacity_header": "## Upgrade Battery Capacity",
+    "capacity_content": "Do you want to upgrade the Battery Capacity for $%s ?",
+    "upgraded_notify_description_capacity": "Upgraded your Battery Capacity to Level: %s",
+    "nomoney_notify_description_capacity": "You need $%s to upgrade your Windmill.",
+    "capacity_metadata": "Current Battery Capacity Level: %s",
+
+    "durability_title": "Upgrade Durability:",
+    "durability_description": "The Windmill Durability allows u to run the Windmill for a longer time.",
+    "durability_description2": "You cant upgrade Windmill Durability because its already on max Level!",
+    "durability_header": "## Upgrade Windmill Durability",
+    "durability_content": "Do you want to upgrade the Windmill Durability for $%s ?",
+    "upgraded_notify_description_durability": "Upgraded your Windmill Durability to Level: %s",
+    "nomoney_notify_description_durability": "You need $%s to upgrade your Windmill.",
+    "durability_metadata": "Current Windmill Durability Level: %s",
+
+    "efficiency_title": "Upgrade Efficiency:",
+    "efficiency_description": "The Windmill Efficiency will make your Windmill aquire more MWh.",
+    "efficiency_description2": "You cant upgrade Windmill Efficiency because its already on max Level!",
+    "efficiency_header": "## Upgrade Windmill Efficiency",
+    "efficiency_content": "Do you want to upgrade the Windmill Efficiency for $%s ?",
+    "upgraded_notify_description_efficiency": "Upgraded your Windmill Efficiency to Level: %s",
+    "nomoney_notify_description_efficiency": "You need $%s to upgrade your Windmill.",
+    "efficiency_metadata": "Current Windmill Efficiency Level: %s",
+
+    "grid_connection_title": "Grid Connection:",
+    "grid_connection_description": "The Grid Connection will allow u to sell MWh automatically when the Energy Storage is full.",
+    "grid_connection_description2": "You cant upgrade the Grid Connection because its already on max Level!",
+    "grid_connection_header": "## Upgrade Grid Connection",
+    "grid_connection_content": "Do you want to upgrade the Grid Connection for $%s ?",
+    "upgraded_notify_description_grid_connection": "Upgraded your Grid Connection to Level: %s",
+    "nomoney_notify_description_grid_connection": "You need $%s to upgrade your Windmill.",
+    "grid_connection_metadata": "Current Grid Connection Level: %s",
+
+    "security_title": "Windmill Security:",
+    "security_description": "The Windmill Security will safe your from Energy Robbers.",
+    "security_description2": "You cant upgrade the Windmill Security because its already on max Level!",
+    "security_header": "## Upgrade Windmill Security",
+    "security_content": "Do you want to upgrade the Windmill Security for $%s ?",
+    "upgraded_notify_description_security": "Upgraded your Windmill Security to Level: %s",
+    "nomoney_notify_description_security": "You need $%s to upgrade your Windmill.",
+    "security_metadata": "Current Windmill Security Level: %s",
+
+    "manage_description": "This Storage can be full, make sure to either Upgrade or empty it from time to time!",
+    "manage_metadata": "Maximum Storage: %s MWh",
+    "production_title": "Windmill Production:",
+    "production_description": "This Turbine produces %s MWh per Storm.",
+    "production_metadata": "Possible: %s MWh.",
+    "durability_title_manage": "Windmill Durability:",
+    "durability_description_manage": "The Windmill Durability is important! Dont let it drop below 5 Percent or it will be stopped! \n Windmill Durability: %s Percent.",
+    "durability_metadata_manage": "Possible: %s Percent.",
+
+    "cant_repair": "You cant repair that right know!",
+    "want_to_repair": "Do you want to repair your Windmill for $%s ?",
+    "repaired_turbine": "You fully repaird your Windmill for $%s.",
+    "nomoney_turbine": "You need $%s to fully repair your Windmill.",
+
+    "sell_turbine_title": "Sell Windmill",
+    "sell_turbine_description": "Sell this Windmill back to the Windmill Manager. You will receive 75% of what you Paid.",
+    "sell_turbine_content": "You spent $%s on this Turbine. U will receive $%s.",
+    "sold_turbine_description": "You sold Turbine #%s for $%s.",
+
+    "sold_batteries": "Sold Batterys.",
+
+    "selltoplayer_turbine_title": "Sell Turbine to Player",
+    "selltoplayer_turbine_description": "Sell your turbine to another player for a custom price.",
+    "selltoplayer_turbine_header": "Sell Turbine #",
+    "citzienid_label": "Player Citizen ID",
+    "citzienid_description": "Enter the Citizen ID of the player you want to sell to.",
+    "price_label": "Selling Price ($)",
+    "price_description": "Set the price for this Windmill sale.",
+
+    "selltoplayer_confirm_content": "Are you sure you want to sell your Windmill for $%s to %s?",
+    "selltoplayer_sold_description": "You sold Windmill ID %s for $%s to Player CID %s.",
+    "selltoplayer_no_money_description": "The player does not have enough money to buy this turbine.",
+    "selltoplayer_not_found_description": "The specified player CID was not found.",
+    "selltoplayer_finalize": "Do you want to buy this Windmill for $%s?",
+    "selltoplayer_nomoney": "You don't have enough money.",
+    "selltoplayer_nomoney2": "The buyer doesn't have enough money.",
+    "selltoplayer_sold": "You sold the Windmill for $%s.",
+    "selltoplayer_bought": "You bought the Windmill for $%s.",
+    "selltoplayer_declined": "The buyer declined the purchase.",
+
+    "batteries_buyer": "Batteries Buyer",
+    "sold_batteries_description": "Bro? What should i buy, your pockets are Empty!",
+    "sold_batteries_title": "Sell Batteries",
+    "sold_batteries_type_label": "How many batteries do you want to sell?",
+    "sold_batteries_type_description": "Choose the amount you want to sell.",
+    "sold_batteries_type_label2": "Payment Method",
+    "sold_batteries_type_description2": "Select how you want to receive your payment.",
+    "sold_batteries_cash": "Cash",
+    "sold_batteries_bank": "Bank Transfer",
+    "sold_batterys_notify_description": "You sold %s Batteries for $%s."
+
+  },
+  "server": {
+    "upgraded_turbine": "Upgraded Windmill ( %s )",
+    "repaired_turbine": "Repaired Windmill",
+    "bought_turbine": "Bought Windmill for $%s",
+    "sold_turbine": "Sold Windmill",
+    "overflow_energy_price": "Sold Overflown Energy."
+  },
+  "robbing": {
+    "windmill_robbing": "Windmill Robbing",
+    "cutting_wires": "Cutting Wires",
+    "failed": "I Cut the wrong wire, i need to get outa here!",
+    "robbing_own": "Cant rob your own bro!?",
+    "no_windmill": "There is no Windmill in your area.",
+    "already_robbed": "Already got robbed..",
+    "item_missing": "Something is missing.",
+    "no_space": "You did not have enough space.. Thank god it fell on the ground!"
+  }
+}
