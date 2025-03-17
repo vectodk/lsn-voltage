@@ -26,12 +26,5 @@ files {
     'locales/*.json',
 }
 
-escrow_ignore {
-    'client/*.lua',
-    'server/*.lua',
-    'locales/*.json',
-    'config.lua',
-}
-
 lua54 'yes'
 use_fxv2_oal 'yes'
