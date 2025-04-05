@@ -4,8 +4,16 @@ local spawnedPeds       = {}
 local pedSpawnPositions = {}
 local blip              = nil
 local ownedWindmill     = nil
+local ESX               = nil
 
 --------------------------------------[[ FUNCTIONS ]]--------------------------------------
+
+CreateThread(function()
+    while ESX == nil do
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+        Wait(0)
+    end
+end)
 
 local function createBlips()
     if blip == nil then
@@ -59,26 +67,26 @@ end
 
 local function windmillPedMenu()
     if lib.progressCircle({
-        duration = 1500,
-        position = 'bottom',
-        label = locale("progresscircle.peter_menu"),
-        useWhileDead = false,
-        canCancel = true,
-        disable = {
-            move = true,
-            car = true,
-            mouse = false,
-            combat = true,
-        },
-        anim = {
-            dict = 'oddjobs@assassinate@vice@hooker',
-            clip = 'argue_a',
-        },
-    })
+            duration = 1500,
+            position = 'bottom',
+            label = locale("progresscircle.peter_menu"),
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                move = true,
+                car = true,
+                mouse = false,
+                combat = true,
+            },
+            anim = {
+                dict = 'oddjobs@assassinate@vice@hooker',
+                clip = 'argue_a',
+            },
+        })
     then
         local ownedTurbine, energyGain = lib.callback.await('lsn-voltage:server:getOwnedTurbine', false)
         if ownedTurbine then
-            if ownedTurbine == nil then 
+            if ownedTurbine == nil then
                 lib.notify({
                     title = locale("ui.windmill_manager"),
                     description = locale("error.went_wrong"),
@@ -87,14 +95,14 @@ local function windmillPedMenu()
                     showDuration = true
                 })
             end
-    
+
             local success = lib.callback.await('lsn-voltage:server:getUpgrades', false, ownedTurbine.id)
             local addedCapacity = Config.Upgrades["max_capacity"][success.max_capacity].effect
             local title = locale("ui.energy_stored", ownedTurbine.energy_amount)
             if ownedTurbine.energy_amount >= Config.DefaultStorage + addedCapacity then
                 title = locale("ui.energy_stored_max", ownedTurbine.energy_amount)
             end
-    
+
             local function disableFunction(type, level)
                 local disabled = false
                 if type == "grid_connection" then
@@ -109,12 +117,12 @@ local function windmillPedMenu()
                 end
                 return disabled
             end
-    
+
             local emptyStorageDisable = false
             if ownedTurbine.energy_amount < 5 then
                 emptyStorageDisable = true
             end
-    
+
             lib.registerContext({
                 id = 'windmill_' .. ownedTurbine.id,
                 title = locale("ui.windmill") .. ownedTurbine.id,
@@ -139,9 +147,10 @@ local function windmillPedMenu()
                                 centered = true,
                                 cancel = true
                             })
-        
+
                             if alert == 'confirm' then
-                                local emptyStorage, removedBatterys = lib.callback.await('lsn-voltage:server:emptyStorage',false, ownedTurbine.id)
+                                local emptyStorage, removedBatterys = lib.callback.await(
+                                    'lsn-voltage:server:emptyStorage', false, ownedTurbine.id)
                                 if emptyStorage == 'gotitems' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
@@ -178,7 +187,7 @@ local function windmillPedMenu()
                         colorScheme = 'blue',
                         progress = success.max_capacity * (100 / 3),
                         onSelect = function()
-                            if success.max_capacity >= 3 then 
+                            if success.max_capacity >= 3 then
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
                                     description = locale("ui.capacity_description2"),
@@ -186,21 +195,24 @@ local function windmillPedMenu()
                                     duration = 5000,
                                     showDuration = true
                                 })
-                                return 
+                                return
                             end
                             local alert = lib.alertDialog({
                                 header = locale("ui.capacity_header"),
-                                content = locale("ui.capacity_content", formatWithCommas(Config.Upgrades["max_capacity"][success.max_capacity + 1].cost)),
+                                content = locale("ui.capacity_content",
+                                    formatWithCommas(Config.Upgrades["max_capacity"][success.max_capacity + 1].cost)),
                                 centered = true,
                                 cancel = true
                             })
-        
+
                             if alert == 'confirm' then
-                                local capacityUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine',false, ownedTurbine.id, "max_capacity")
+                                local capacityUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine', false,
+                                    ownedTurbine.id, "max_capacity")
                                 if capacityUpgraded == 'upgraded' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.upgraded_notify_description_capacity", success.max_capacity + 1),
+                                        description = locale("ui.upgraded_notify_description_capacity",
+                                            success.max_capacity + 1),
                                         type = 'success',
                                         icon = 'fas fa-money-bill-transfer',
                                         duration = 5000,
@@ -209,7 +221,9 @@ local function windmillPedMenu()
                                 elseif capacityUpgraded == 'nomoney' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.nomoney_notify_description_capacity", formatWithCommas(Config.Upgrades["max_capacity"][success.max_capacity].cost + 1)),
+                                        description = locale("ui.nomoney_notify_description_capacity",
+                                            formatWithCommas(Config.Upgrades["max_capacity"][success.max_capacity].cost +
+                                                1)),
                                         type = 'error',
                                         duration = 5000,
                                         showDuration = true
@@ -230,7 +244,7 @@ local function windmillPedMenu()
                         colorScheme = 'blue',
                         progress = success.durability * (100 / 3),
                         onSelect = function()
-                            if success.durability >= 3 then 
+                            if success.durability >= 3 then
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
                                     description = locale("ui.durability_title_description2"),
@@ -238,21 +252,24 @@ local function windmillPedMenu()
                                     duration = 5000,
                                     showDuration = true
                                 })
-                                return 
+                                return
                             end
                             local alert = lib.alertDialog({
                                 header = locale("ui.durability_header"),
-                                content = locale("ui.durability_content", formatWithCommas(Config.Upgrades["durability"][success.durability + 1].cost)),
+                                content = locale("ui.durability_content",
+                                    formatWithCommas(Config.Upgrades["durability"][success.durability + 1].cost)),
                                 centered = true,
                                 cancel = true
                             })
-        
+
                             if alert == 'confirm' then
-                                local durabilityUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine',false, ownedTurbine.id, "durability")
+                                local durabilityUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine', false,
+                                    ownedTurbine.id, "durability")
                                 if durabilityUpgraded == 'upgraded' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.upgraded_notify_description_durability", success.durability + 1),
+                                        description = locale("ui.upgraded_notify_description_durability",
+                                            success.durability + 1),
                                         type = 'success',
                                         icon = 'fas fa-money-bill-transfer',
                                         duration = 5000,
@@ -261,7 +278,8 @@ local function windmillPedMenu()
                                 elseif durabilityUpgraded == 'nomoney' then
                                     lib.notify({
                                         title = 'Windmill Manager',
-                                        description = locale("ui.nomoney_notify_description_durability", formatWithCommas(Config.Upgrades["durability"][success.durability + 1].cost)),
+                                        description = locale("ui.nomoney_notify_description_durability",
+                                            formatWithCommas(Config.Upgrades["durability"][success.durability + 1].cost)),
                                         type = 'error',
                                         duration = 5000,
                                         showDuration = true
@@ -282,7 +300,7 @@ local function windmillPedMenu()
                         colorScheme = 'blue',
                         progress = success.efficiency * (100 / 3),
                         onSelect = function()
-                            if success.efficiency >= 3 then 
+                            if success.efficiency >= 3 then
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
                                     description = locale("ui.efficiency_description2"),
@@ -290,21 +308,24 @@ local function windmillPedMenu()
                                     duration = 5000,
                                     showDuration = true
                                 })
-                                return 
+                                return
                             end
                             local alert = lib.alertDialog({
                                 header = locale("ui.efficiency_header"),
-                                content = locale("ui.efficiency_content", formatWithCommas(Config.Upgrades["efficiency"][success.efficiency + 1].cost)),
+                                content = locale("ui.efficiency_content",
+                                    formatWithCommas(Config.Upgrades["efficiency"][success.efficiency + 1].cost)),
                                 centered = true,
                                 cancel = true
                             })
-        
+
                             if alert == 'confirm' then
-                                local efficiencyUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine',false, ownedTurbine.id, "efficiency")
+                                local efficiencyUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine', false,
+                                    ownedTurbine.id, "efficiency")
                                 if efficiencyUpgraded == 'upgraded' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.upgraded_notify_description_efficiency", success.efficiency + 1),
+                                        description = locale("ui.upgraded_notify_description_efficiency",
+                                            success.efficiency + 1),
                                         type = 'success',
                                         icon = 'fas fa-money-bill-transfer',
                                         duration = 5000,
@@ -313,7 +334,8 @@ local function windmillPedMenu()
                                 elseif efficiencyUpgraded == 'nomoney' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.nomoney_notify_description_efficiency", formatWithCommas(Config.Upgrades["efficiency"][success.efficiency + 1].cost)),
+                                        description = locale("ui.nomoney_notify_description_efficiency",
+                                            formatWithCommas(Config.Upgrades["efficiency"][success.efficiency + 1].cost)),
                                         type = 'error',
                                         duration = 5000,
                                         showDuration = true
@@ -334,7 +356,7 @@ local function windmillPedMenu()
                         colorScheme = 'blue',
                         progress = success.grid_connection * 100,
                         onSelect = function()
-                            if success.grid_connection >= 1 then 
+                            if success.grid_connection >= 1 then
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
                                     description = locale("ui.grid_connection_description2"),
@@ -342,21 +364,25 @@ local function windmillPedMenu()
                                     duration = 5000,
                                     showDuration = true
                                 })
-                                return 
+                                return
                             end
                             local alert = lib.alertDialog({
                                 header = locale("ui.grid_connection_header"),
-                                content = locale("ui.grid_connection_content", formatWithCommas(Config.Upgrades["grid_connection"][success.grid_connection + 1].cost)),
+                                content = locale("ui.grid_connection_content",
+                                    formatWithCommas(Config.Upgrades["grid_connection"][success.grid_connection + 1]
+                                        .cost)),
                                 centered = true,
                                 cancel = true
                             })
-        
+
                             if alert == 'confirm' then
-                                local grid_connectionUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine',false, ownedTurbine.id, "grid_connection")
+                                local grid_connectionUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine',
+                                    false, ownedTurbine.id, "grid_connection")
                                 if grid_connectionUpgraded == 'upgraded' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.upgraded_notify_description_grid_connection", success.grid_connection + 1),
+                                        description = locale("ui.upgraded_notify_description_grid_connection",
+                                            success.grid_connection + 1),
                                         type = 'success',
                                         icon = 'fas fa-money-bill-transfer',
                                         duration = 5000,
@@ -365,7 +391,9 @@ local function windmillPedMenu()
                                 elseif grid_connectionUpgraded == 'nomoney' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.nomoney_notify_description_grid_connection", formatWithCommas(Config.Upgrades["grid_connection"][success.grid_connection + 1].cost)),
+                                        description = locale("ui.nomoney_notify_description_grid_connection",
+                                            formatWithCommas(Config.Upgrades["grid_connection"]
+                                                [success.grid_connection + 1].cost)),
                                         type = 'error',
                                         duration = 5000,
                                         showDuration = true
@@ -386,7 +414,7 @@ local function windmillPedMenu()
                         colorScheme = 'blue',
                         progress = success.security * (100 / 3),
                         onSelect = function()
-                            if success.security >= 3 then 
+                            if success.security >= 3 then
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
                                     description = locale("ui.security_description2"),
@@ -394,21 +422,24 @@ local function windmillPedMenu()
                                     duration = 5000,
                                     showDuration = true
                                 })
-                                return 
+                                return
                             end
                             local alert = lib.alertDialog({
                                 header = locale("ui.security_header"),
-                                content = locale("ui.security_content", formatWithCommas(Config.Upgrades["security"][success.security + 1].cost)),
+                                content = locale("ui.security_content",
+                                    formatWithCommas(Config.Upgrades["security"][success.security + 1].cost)),
                                 centered = true,
                                 cancel = true
                             })
-        
+
                             if alert == 'confirm' then
-                                local securityUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine',false, ownedTurbine.id, "security")
+                                local securityUpgraded = lib.callback.await('lsn-voltage:server:upgradeTurbine', false,
+                                    ownedTurbine.id, "security")
                                 if securityUpgraded == 'upgraded' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.upgraded_notify_description_security", success.security + 1),
+                                        description = locale("ui.upgraded_notify_description_security",
+                                            success.security + 1),
                                         type = 'success',
                                         icon = 'fas fa-money-bill-transfer',
                                         duration = 5000,
@@ -417,7 +448,8 @@ local function windmillPedMenu()
                                 elseif securityUpgraded == 'nomoney' then
                                     lib.notify({
                                         title = locale("ui.windmill_manager"),
-                                        description = locale("ui.nomoney_notify_description_security", formatWithCommas(Config.Upgrades["security"][success.security + 1].cost)),
+                                        description = locale("ui.nomoney_notify_description_security",
+                                            formatWithCommas(Config.Upgrades["security"][success.security + 1].cost)),
                                         type = 'error',
                                         duration = 5000,
                                         showDuration = true
@@ -431,7 +463,7 @@ local function windmillPedMenu()
                     },
                 }
             })
-    
+
             lib.showContext('windmill_' .. ownedTurbine.id)
         else
             lib.notify({
@@ -449,7 +481,7 @@ end
 
 local function sellBatterys()
     local itemCount = exports.ox_inventory:GetItemCount(Config.energyItemName)
-    if itemCount <= 0 then 
+    if itemCount <= 0 then
         lib.notify({
             title = locale("ui.batteries_buyer"),
             description = locale("ui.sold_batteries_description"),
@@ -458,42 +490,57 @@ local function sellBatterys()
             duration = 5000,
             showDuration = true
         })
-        return 
+        return
     end
     if lib.progressCircle({
-        duration = 2000,
-        position = 'bottom',
-        label = locale("progresscircle.selling_batteries"),
-        useWhileDead = false,
-        canCancel = true,
-        disable = {
-            move = true,
-            car = true,
-            mouse = false,
-            combat = true,
-        },
-        anim = {
-            dict = 'misscarsteal4@actor',
-            clip = 'actor_berating_loop',
-        },
-    })
+            duration = 2000,
+            position = 'bottom',
+            label = locale("progresscircle.selling_batteries"),
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                move = true,
+                car = true,
+                mouse = false,
+                combat = true,
+            },
+            anim = {
+                dict = 'misscarsteal4@actor',
+                clip = 'actor_berating_loop',
+            },
+        })
     then
         local input = lib.inputDialog(locale("ui.sold_batteries_title"), {
-            {type = 'slider', label = locale("ui.sold_batteries_type_label"), 
-                description = locale("ui.sold_batteries_type_description"), 
-                required = true, min = 1, max = itemCount, default = itemCount, step = 1, icon = 'fas fa-battery-three-quarters'},
-            {type = 'select', icon = 'fas fa-credit-card', default = 'bank', label = locale("ui.sold_batteries_type_label2"), 
-                description = locale("ui.sold_batteries_type_description2"), 
+            {
+                type = 'slider',
+                label = locale("ui.sold_batteries_type_label"),
+                description = locale("ui.sold_batteries_type_description"),
+                required = true,
+                min = 1,
+                max = itemCount,
+                default = itemCount,
+                step = 1,
+                icon = 'fas fa-battery-three-quarters'
+            },
+            {
+                type = 'select',
+                icon = 'fas fa-credit-card',
+                default = 'bank',
+                label = locale("ui.sold_batteries_type_label2"),
+                description = locale("ui.sold_batteries_type_description2"),
                 options = {
-                    {label = locale("ui.sold_batteries_cash"), value = 'cash'},
-                    {label = locale("ui.sold_batteries_bank"), value = 'bank'}
-                }, required = true},
+                    { label = locale("ui.sold_batteries_cash"), value = 'cash' },
+                    { label = locale("ui.sold_batteries_bank"), value = 'bank' }
+                },
+                required = true
+            },
         })
-     
+
         if not input then return end
         local batteries = input[1]
         local paymentOption = input[2]
-        local soldBatteries, price = lib.callback.await('lsn-voltage:server:sellBatteries', false, batteries, paymentOption)
+        local soldBatteries, price = lib.callback.await('lsn-voltage:server:sellBatteries', false, batteries,
+            paymentOption)
         if soldBatteries == 'sold' then
             lib.notify({
                 title = locale("ui.batteries_buyer"),
@@ -511,37 +558,38 @@ end
 
 local function CreateManageMenu(turbineData, energyGain)
     if lib.progressCircle({
-        duration = 1500,
-        position = 'bottom',
-        label = locale("progresscircle.manage_menu"),
-        useWhileDead = false,
-        canCancel = true,
-        disable = {
-            move = true,
-            car = true,
-            mouse = false,
-            combat = true,
-        },
-        anim = {
-            dict = 'anim@amb@carmeet@checkout_car@male_c@idles',
-            clip = 'idle_a',
-        },
-    })
+            duration = 1500,
+            position = 'bottom',
+            label = locale("progresscircle.manage_menu"),
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                move = true,
+                car = true,
+                mouse = false,
+                combat = true,
+            },
+            anim = {
+                dict = 'anim@amb@carmeet@checkout_car@male_c@idles',
+                clip = 'idle_a',
+            },
+        })
     then
         local success = lib.callback.await('lsn-voltage:server:getUpgrades', false, turbineData.id)
 
-        local maxEnergyGain = (Config.MaxProduction * Config.Upgrades["efficiency"][success.efficiency].effect) * Config.EnergyMultiplier
+        local maxEnergyGain = (Config.MaxProduction * Config.Upgrades["efficiency"][success.efficiency].effect) *
+            Config.EnergyMultiplier
         local productionPercentage = (energyGain / maxEnergyGain) * 100
-    
+
         local function GetProductionColor()
             if productionPercentage < 33 then
-                return'red'
+                return 'red'
             elseif productionPercentage < 66 then
-                return'orange'
+                return 'orange'
             end
             return 'green'
         end
-    
+
         local function GetDurabilityColor(durabilityPercentage)
             local percentage = durabilityPercentage
             if percentage < 33.33 then
@@ -552,16 +600,16 @@ local function CreateManageMenu(turbineData, energyGain)
                 return 'green'
             end
         end
-    
+
         local addedCapacity = Config.Upgrades["max_capacity"][success.max_capacity].effect
         local title = locale("ui.energy_stored", turbineData.energy_amount)
         if turbineData.energy_amount >= Config.DefaultStorage + addedCapacity then
             title = locale("ui.energy_stored_max", turbineData.energy_amount)
         end
-    
+
         local maxDurability = 100 + Config.Upgrades["durability"][success.durability].effect
         local durabilityPercentage = (turbineData.durability / maxDurability) * 100
-    
+
         lib.registerContext({
             id = 'windmill_' .. turbineData.id,
             title = locale("ui.windmill") .. turbineData.id,
@@ -592,7 +640,7 @@ local function CreateManageMenu(turbineData, energyGain)
                     colorScheme = GetDurabilityColor(durabilityPercentage),
                     progress = durabilityPercentage,
                     onSelect = function()
-                        if turbineData.durability >= maxDurability then 
+                        if turbineData.durability >= maxDurability then
                             lib.notify({
                                 title = locale("ui.windmill_manager"),
                                 description = locale("ui.cant_repair"),
@@ -600,7 +648,7 @@ local function CreateManageMenu(turbineData, energyGain)
                                 duration = 5000,
                                 showDuration = true
                             })
-                            return 
+                            return
                         end
                         local cost = lib.callback.await('lsn-voltage:server:repairTurbineCost', false, turbineData.id)
                         local alert = lib.alertDialog({
@@ -609,9 +657,10 @@ local function CreateManageMenu(turbineData, energyGain)
                             centered = true,
                             cancel = true
                         })
-    
+
                         if alert == 'confirm' then
-                            local turbineRepaired, cost = lib.callback.await('lsn-voltage:server:repairTurbine', false, turbineData.id)
+                            local turbineRepaired, cost = lib.callback.await('lsn-voltage:server:repairTurbine', false,
+                                turbineData.id)
                             if turbineRepaired == 'repaired' then
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
@@ -661,26 +710,29 @@ local function CreateManageMenu(turbineData, energyGain)
                                 max = 1000000,
                             }
                         })
-                
+
                         if not input or not input[1] or not input[2] then return end
                         local targetCid = tostring(input[1])
                         local sellingPrice = tonumber(input[2])
-    
+
                         local alert = lib.alertDialog({
                             header = locale("ui.windmill_manager"),
-                            content = locale("ui.selltoplayer_confirm_content", formatWithCommas(math.floor(sellingPrice)), targetCid),
+                            content = locale("ui.selltoplayer_confirm_content",
+                                formatWithCommas(math.floor(sellingPrice)), targetCid),
                             centered = true,
                             cancel = true
                         })
-                
+
                         if alert == 'confirm' then
-                            local turbineSold = lib.callback.await('lsn-voltage:server:sellTurbineToPlayer', false, turbineData.id, targetCid, sellingPrice)
-                            
+                            local turbineSold = lib.callback.await('lsn-voltage:server:sellTurbineToPlayer', false,
+                                turbineData.id, targetCid, sellingPrice)
+
                             if turbineSold == 'sold' then
                                 deleteBlips(true)
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
-                                    description = locale("ui.selltoplayer_sold_description",turbineData.id, formatWithCommas(math.floor(sellingPrice)), targetCid),
+                                    description = locale("ui.selltoplayer_sold_description", turbineData.id,
+                                        formatWithCommas(math.floor(sellingPrice)), targetCid),
                                     type = 'success',
                                     icon = 'fas fa-money-bill-transfer',
                                     duration = 5000,
@@ -721,21 +773,25 @@ local function CreateManageMenu(turbineData, energyGain)
                     icon = 'fas fa-money-bill-transfer',
                     description = locale("ui.sell_turbine_description"),
                     onSelect = function()
-                        local cost, totalCost = lib.callback.await("lsn-voltage:server:sellTurbineCost", false, turbineData.id)
+                        local cost, totalCost = lib.callback.await("lsn-voltage:server:sellTurbineCost", false,
+                            turbineData.id)
                         local alert = lib.alertDialog({
                             header = locale("ui.windmill_manager"),
-                            content = locale("ui.sell_turbine_content", formatWithCommas(totalCost), formatWithCommas(math.floor(cost))),
+                            content = locale("ui.sell_turbine_content", formatWithCommas(totalCost),
+                                formatWithCommas(math.floor(cost))),
                             centered = true,
                             cancel = true
                         })
-    
+
                         if alert == 'confirm' then
-                            local turbineSold = lib.callback.await('lsn-voltage:server:sellTurbine', false, turbineData.id)
+                            local turbineSold = lib.callback.await('lsn-voltage:server:sellTurbine', false,
+                                turbineData.id)
                             if turbineSold == 'sold' then
                                 deleteBlips(true)
                                 lib.notify({
                                     title = locale("ui.windmill_manager"),
-                                    description = locale("ui.sold_turbine_description", turbineData.id, formatWithCommas(math.floor(cost))),
+                                    description = locale("ui.sold_turbine_description", turbineData.id,
+                                        formatWithCommas(math.floor(cost))),
                                     type = 'success',
                                     icon = 'fas fa-money-bill-transfer',
                                     duration = 5000,
@@ -747,7 +803,7 @@ local function CreateManageMenu(turbineData, energyGain)
                 },
             }
         })
-    
+
         lib.showContext('windmill_' .. turbineData.id)
     else
         dbug("canceled")
@@ -772,7 +828,7 @@ local function createPed()
         SetEntityInvincible(windmillPed, true)
         SetBlockingOfNonTemporaryEvents(windmillPed, true)
         FreezeEntityPosition(windmillPed, true)
-      
+
         exports.ox_target:addLocalEntity(windmillPed, {
             name = ped.model .. '_ped',
             label = ped.target.label or dbug("ped.target.label not set"),
@@ -797,8 +853,8 @@ local function removePed()
 end
 
 local function ManageWindmill(turbineId)
-    local turbineData, energyGain = lib.callback.await('lsn-voltage:server:getTurbineData',false, turbineId)
-    if turbineData == nil then 
+    local turbineData, energyGain = lib.callback.await('lsn-voltage:server:getTurbineData', false, turbineId)
+    if turbineData == nil then
         lib.notify({
             title = locale("ui.windmill_manager"),
             description = locale("error.went_wrong"),
@@ -807,7 +863,7 @@ local function ManageWindmill(turbineId)
             showDuration = true
         })
     end
-    if QBX.PlayerData.citizenid ~= turbineData.owner then
+    if ESX.GetPlayerData().identifier ~= turbineData.owner then
         lib.notify({
             title = locale("ui.windmill_manager"),
             description = locale("error.not_owned"),
@@ -823,22 +879,22 @@ end
 
 local function BuyWindmill(turbineId)
     if lib.progressCircle({
-        duration = 5000,
-        position = 'bottom',
-        label = locale("progresscircle.buying_windmill"),
-        useWhileDead = false,
-        canCancel = true,
-        disable = {
-            move = true,
-            car = true,
-            mouse = false,
-            combat = true,
-        },
-        anim = {
-            dict = 'random@shop_tattoo',
-            clip = '_idle_a',
-        },
-    })
+            duration = 5000,
+            position = 'bottom',
+            label = locale("progresscircle.buying_windmill"),
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                move = true,
+                car = true,
+                mouse = false,
+                combat = true,
+            },
+            anim = {
+                dict = 'random@shop_tattoo',
+                clip = '_idle_a',
+            },
+        })
     then
         local alert = lib.alertDialog({
             header = locale("ui.windmill_manager"),
@@ -846,7 +902,7 @@ local function BuyWindmill(turbineId)
             centered = true,
             cancel = true
         })
-    
+
         if alert == 'confirm' then
             local canBuyTurbine = lib.callback.await('lsn-voltage:server:buyTurbine', false, turbineId)
             if canBuyTurbine == 'owned' then
@@ -880,9 +936,9 @@ end
 
 local function createWindMill()
     local turbines = lib.callback.await('lsn-voltage:server:getAllTurbines', false)
-    
+
     if not turbines then return end
-    
+
     for i = 1, #turbines do
         local coords = json.decode(turbines[i].coords)
 
@@ -928,7 +984,7 @@ local function createNewWindMill()
     local creatingWind = true
     local showUI = false
     local lastEntity
-    
+
     while creatingWind do
         Wait(0)
         local hit, ent, coords = lib.raycast.fromCamera(16, 4, 25.0)
@@ -951,11 +1007,12 @@ local function createNewWindMill()
                 if IsControlJustReleased(0, 46) then
                     local entCoords = GetEntityCoords(ent)
                     local success = lib.callback.await('lsn-voltage:server:createTurbine', false, entCoords)
-                    
-                    if success == "already_exist" then showUI = false
-                        lib.hideTextUI() 
-                        SetEntityDrawOutline(lastEntity, false) 
-                        return 
+
+                    if success == "already_exist" then
+                        showUI = false
+                        lib.hideTextUI()
+                        SetEntityDrawOutline(lastEntity, false)
+                        return
                     end
 
                     showUI = false
@@ -964,7 +1021,7 @@ local function createNewWindMill()
 
                     local turbines = lib.callback.await('lsn-voltage:server:getAllTurbines', false)
                     exports.ox_target:addSphereZone({
-                        name = 'turbine_' ..turbines[#turbines].id,
+                        name = 'turbine_' .. turbines[#turbines].id,
                         coords = entCoords,
                         radius = 4,
                         debug = Config.Debug,
@@ -1062,22 +1119,22 @@ end)
 RegisterNetEvent('lsn-voltage:client:startRobbing', function(closestTurbine)
     local coords = GetEntityCoords(PlayerPedId())
     if lib.progressCircle({
-        duration = 8000,
-        position = 'bottom',
-        label = locale("robbing.cutting_wires"),
-        useWhileDead = false,
-        canCancel = true,
-        disable = {
-            move = true,
-            car = true,
-            mouse = false,
-            combat = true,
-        },
-        anim = {
-            dict = 'mini@repair',
-            clip = 'fixing_a_ped',
-        },
-    })
+            duration = 8000,
+            position = 'bottom',
+            label = locale("robbing.cutting_wires"),
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                move = true,
+                car = true,
+                mouse = false,
+                combat = true,
+            },
+            anim = {
+                dict = 'mini@repair',
+                clip = 'fixing_a_ped',
+            },
+        })
     then
         local success = lib.skillCheck(Config.hackingDifficulty, Config.hackingKeys)
         local id = closestTurbine.id
@@ -1098,7 +1155,7 @@ RegisterNetEvent('lsn-voltage:client:startRobbing', function(closestTurbine)
         if Config.policeAlertType == 'client' then
             local chance = math.random(1, 100)
             if Config.Upgrades["security"][upgrades.security].callChance < chance then
-                dbug(Config.Upgrades["security"][upgrades.security].callChance.. " kleiner als " ..chance)
+                dbug(Config.Upgrades["security"][upgrades.security].callChance .. " kleiner als " .. chance)
                 alertPolice(coords)
             end
         end
@@ -1132,15 +1189,15 @@ RegisterNetEvent("lsn-voltage:client:tpToWindmill", function(coords)
     SetEntityCoords(ped, coords.x, coords.y, coords.z + 1.0, false, false, false, false)
     Wait(500)
     DoScreenFadeIn(500)
-    lib.notify({title = "Teleport", description = "You have been teleported to the windmill!", type = "success"})
-end) 
+    lib.notify({ title = "Teleport", description = "You have been teleported to the windmill!", type = "success" })
+end)
 
 RegisterNetEvent("lsn-voltage:client:windmillAdminMenu", function()
-    lib.notify({title = "Windmill Admin", description = "Loading Data...", type = "info", duration = 4000})
+    lib.notify({ title = "Windmill Admin", description = "Loading Data...", type = "info", duration = 4000 })
 
     local turbines = lib.callback.await('lsn-voltage:server:getAllTurbines', false)
     if not turbines or #turbines == 0 then
-        lib.notify({title = "No Windmills", description = "No windmills found.", type = "warning"})
+        lib.notify({ title = "No Windmills", description = "No windmills found.", type = "warning" })
         return
     end
 
@@ -1149,7 +1206,7 @@ RegisterNetEvent("lsn-voltage:client:windmillAdminMenu", function()
     for i = 1, #turbines do
         local turbine = turbines[i]
         local coords = json.decode(turbine.coords)
-        
+
         local owner = turbine.owner ~= "0" and ("🟢 **Owner**: " .. turbine.owner) or "🔴 **Unowned**"
 
         local upgrades = lib.callback.await('lsn-voltage:server:getUpgrades', false, turbine.id) or {}
@@ -1157,12 +1214,12 @@ RegisterNetEvent("lsn-voltage:client:windmillAdminMenu", function()
 
         if type(upgrades) == "table" and next(upgrades) ~= nil then
             local upgradeNames = {}
-        
+
             for upgradeName, level in pairs(upgrades) do
                 local formattedName = upgradeName:gsub("^%l", string.upper)
                 table.insert(upgradeNames, "‎ ‎ ‎ ‎ ‎ ‎ ‎ ● **" .. formattedName .. "** [ Lv. " .. level .. " ]")
             end
-        
+
             upgradeList = "\n" .. table.concat(upgradeNames, "\n")
         end
 
@@ -1194,13 +1251,13 @@ AddEventHandler('onResourceStart', function(resourceName)
     createWindMill()
 end)
 
-AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
+AddEventHandler('esx:playerLoaded', function()
     createPed()
     createBlips()
     createWindMill()
 end)
 
-AddEventHandler('QBCore:Client:OnPlayerUnload', function()
+AddEventHandler('esx:onPlayerLogout', function()
     removePed()
     deleteBlips()
 end)
